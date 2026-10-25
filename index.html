@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#f5f2e9">
+  <title>梅间一卦 · 梅花易数</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f6f3eb;
+      --paper-deep: #ebe8dc;
+      --ink: #273d37;
+      --ink-soft: #556b60;
+      --muted: #89958b;
+      --green: #4f7867;
+      --green-dark: #315648;
+      --green-pale: #e4eee5;
+      --gold: #b38d55;
+      --line: #e7e5d9;
+      --white: #fffef9;
+      --shadow: 0 24px 70px rgba(56, 76, 62, .09);
+      font-family: "Songti SC", "Noto Serif CJK SC", "STSong", "SimSun", serif;
+      color: var(--ink);
+      background: var(--paper);
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; min-height: 100vh; overflow-x: hidden; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .page { min-height: 100vh; position: relative; overflow: hidden; }
+    .page::before, .page::after { content: ""; position: absolute; z-index: 0; pointer-events: none; border-radius: 50%; filter: blur(1px); }
+    .page::before { width: 430px; height: 430px; right: -220px; top: 105px; background: radial-gradient(circle, #e4eddf 0, #e4eddf66 48%, transparent 72%); }
+    .page::after { width: 380px; height: 380px; left: -220px; bottom: 80px; background: radial-gradient(circle, #e8e8d8 0, #e8e8d855 48%, transparent 72%); }
+    .shell { width: min(1120px, calc(100% - 54px)); margin: 0 auto; position: relative; z-index: 1; }
+
+    header { height: 82px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #dcded2; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark { width: 37px; height: 37px; display: grid; place-items: center; color: var(--green-dark); border: 1px solid #a8b9a9; border-radius: 50%; font-size: 19px; background: #eff1e5; box-shadow: inset 0 0 0 4px #f6f3eb; }
+    .brand-name { font-size: 15px; letter-spacing: 3px; font-weight: 600; }
+    .brand-sub { color: var(--muted); font: 9px/1.5 Arial,sans-serif; letter-spacing: 1.1px; margin-top: 3px; }
+    .header-right { display: flex; align-items: center; gap: 18px; color: var(--muted); font: 10px Arial,sans-serif; }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 6px; background: #87a889; box-shadow: 0 0 0 4px #87a88922; vertical-align: 1px; }
+
+    .hero { padding: 62px 0 38px; display: grid; grid-template-columns: 1.12fr .88fr; align-items: center; gap: 25px; }
+    .eyebrow { display: flex; align-items: center; gap: 10px; color: var(--gold); font-size: 11px; letter-spacing: 3px; }
+    .eyebrow::before { content: ""; width: 24px; height: 1px; background: var(--gold); }
+    h1 { font-size: clamp(37px, 5vw, 58px); line-height: 1.26; letter-spacing: 4px; font-weight: 500; margin: 20px 0 15px; }
+    h1 span { color: var(--green); }
+    .hero-copy { max-width: 460px; color: #78857a; font-size: 13px; line-height: 2.05; letter-spacing: .4px; margin: 0; }
+    .hero-meta { display: flex; gap: 20px; align-items: center; margin-top: 26px; color: #89958b; font-size: 10px; letter-spacing: 1px; }
+    .hero-meta span + span { padding-left: 19px; border-left: 1px solid #d5d9cc; }
+
+    .scene { height: 272px; position: relative; display: grid; place-items: center; isolation: isolate; }
+    .scene-sun { width: 146px; height: 146px; position: absolute; top: 25px; right: 88px; border-radius: 50%; background: linear-gradient(145deg,#f5ebc9,#e8dab2); opacity: .75; box-shadow: 0 0 50px #e5d8ad55; animation: sun-breathe 7s ease-in-out infinite; }
+    .scene-cloud { position: absolute; top: 70px; left: 13px; width: 102px; height: 25px; border-radius: 50%; background: #fffef9a8; filter: blur(3px); animation: cloud-drift 16s ease-in-out infinite alternate; }
+    .scene-cloud::after { content: ""; width: 72px; height: 18px; position: absolute; left: 47px; top: 12px; border-radius: 50%; background: #fffef9a8; }
+    .scene-cloud.two { top: 118px; left: auto; right: 10px; transform: scale(.7); opacity: .8; animation-delay: -7s; }
+    .hill { position: absolute; bottom: 14px; width: 410px; height: 116px; border-radius: 50% 50% 0 0 / 70% 70% 0 0; }
+    .hill.back { bottom: 34px; left: 0; width: 260px; height: 100px; background: #dfe7d9; transform: rotate(-7deg); }
+    .hill.front { right: -4px; background: #d2e0d2; }
+    .hill.low { left: 98px; bottom: 4px; width: 300px; height: 90px; background: #c2d5c6; transform: rotate(4deg); }
+    .mountain { position: absolute; bottom: 97px; left: 50%; width: 0; height: 0; border-left: 67px solid transparent; border-right: 67px solid transparent; border-bottom: 130px solid #b7cbb9; transform: translateX(-54%); opacity: .85; }
+    .mountain::after { content: ""; position: absolute; left: 9px; top: 19px; border-left: 43px solid transparent; border-right: 0 solid transparent; border-bottom: 84px solid #d9e4d6; }
+    .mountain.small { left: 40%; bottom: 101px; transform: translateX(-50%) scale(.66); border-bottom-color: #c6d5c4; opacity: .85; }
+    .pond { width: 205px; height: 24px; position: absolute; bottom: 24px; right: 45px; border-radius: 50%; background: #a8c4bb66; filter: blur(2px); }
+    .lotus { position: absolute; bottom: 47px; right: 76px; z-index: 2; transform-origin: center bottom; animation: lotus-sway 5s ease-in-out infinite; }
+    .lotus svg { width: 70px; height: 86px; overflow: visible; }
+    .scene-bird { position: absolute; color: #738b7e; font-size: 13px; top: 80px; right: 43px; animation: bird-float 5s ease-in-out infinite; }
+    .scene-bird::after { content: "⌒"; position: absolute; top: 11px; left: 25px; transform: rotate(-9deg); font-size: 17px; }
+    .scene-label { position: absolute; bottom: 6px; left: 12px; color: #90a092; font-size: 9px; letter-spacing: 2px; writing-mode: vertical-rl; }
+
+    .panel { background: #fffef9d9; border: 1px solid #e8e6dc; border-radius: 17px; box-shadow: var(--shadow); }
+    .reading-panel { padding: 28px 31px 26px; position: relative; }
+    .panel-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; }
+    .section-kicker { color: var(--gold); font-size: 9px; letter-spacing: 2.2px; }
+    h2 { font-size: 20px; letter-spacing: 2px; font-weight: 500; margin: 8px 0 0; }
+    .today-chip { border: 1px solid #e4e7dc; background: #f7f8f1; color: #7b8b7e; border-radius: 20px; padding: 7px 11px; font-size: 9px; white-space: nowrap; }
+    .date-line { margin: 22px 0 20px; padding: 13px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 9px 19px; color: #78857a; font-size: 11px; }
+    .date-line strong { color: var(--green-dark); font-weight: 500; }
+    .question-label { display: flex; align-items: baseline; justify-content: space-between; color: #5e6e63; font-size: 11px; margin-bottom: 9px; }
+    .question-label small { color: #a6aca0; font: 9px Arial,sans-serif; }
+    .question-input { width: 100%; min-height: 47px; border: 1px solid #e4e6db; border-radius: 9px; padding: 12px 14px; background: #fffefb; color: var(--ink); outline: none; font-size: 12px; transition: border .2s,box-shadow .2s; }
+    .question-input::placeholder { color: #b5b9ad; }
+    .question-input:focus { border-color: #a8bca9; box-shadow: 0 0 0 3px #eaf0e8; }
+    .start-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 17px; }
+    .start-hint { color: #9ba397; font-size: 9px; line-height: 1.7; }
+    .primary-button { min-height: 43px; padding: 0 21px; border: 0; border-radius: 8px; background: var(--green); color: white; font-size: 11px; letter-spacing: 1.3px; box-shadow: 0 6px 15px #466d5b22; transition: .2s; }
+    .primary-button:hover { background: var(--green-dark); transform: translateY(-1px); box-shadow: 0 9px 19px #466d5b33; }
+    .primary-button:disabled { opacity: .65; cursor: wait; transform: none; }
+
+    .method-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 18px 0 78px; }
+    .method-card { border: 1px solid #e7e7dc; background: #f9f8f2aa; border-radius: 11px; padding: 14px 15px; }
+    .method-num { color: #b29362; font: 10px Arial,sans-serif; letter-spacing: 1px; }
+    .method-card h3 { color: #556c5e; font-size: 11px; font-weight: 500; margin: 8px 0 5px; }
+    .method-card p { color: #959d91; font-size: 9px; line-height: 1.75; margin: 0; }
+
+    .interaction { display: none; padding: 30px; margin: 0 0 22px; text-align: center; overflow: hidden; position: relative; }
+    .interaction.show { display: block; animation: rise-in .65s ease both; }
+    .interaction::before { content: ""; width: 240px; height: 240px; border-radius: 50%; background: radial-gradient(circle,#eaf0e4,transparent 70%); position: absolute; left: 50%; top: 37px; transform: translateX(-50%); pointer-events: none; }
+    .interaction h2,.interaction p,.draw-stage,.draw-help { position: relative; z-index: 1; }
+    .interaction .panel-heading { text-align: left; }
+    .draw-stage { height: 224px; position: relative; display: grid; place-items: end center; margin: 0 auto 5px; perspective: 620px; }
+    .bucket { width: 118px; height: 137px; position: relative; z-index: 2; transform-origin: 50% 85%; transform-style: preserve-3d; filter: drop-shadow(0 11px 10px #76654b22); }
+    .bucket-body { position: absolute; inset: 25px 8px 4px; overflow: hidden; border: 2px solid #9d7548; border-top: 0; border-radius: 8px 8px 24px 24px / 6px 6px 17px 17px; background: repeating-linear-gradient(90deg,#b7844c 0 5px,#d0a16a 5px 10px,#c08c54 10px 14px); box-shadow: inset 6px 0 8px #f1d3a244,inset -7px 0 10px #80593245,inset 0 -12px 10px #815d3733; }
+    .bucket-body::before { content: ""; position: absolute; inset: 0 9px; background: repeating-linear-gradient(90deg,transparent 0 12px,#80593230 12px 14px); }
+    .bucket-band { height: 8px; position: absolute; z-index: 3; left: 4px; right: 4px; border: 1px solid #987040; border-radius: 50%; background: linear-gradient(#e2c18d,#bd945f 55%,#9a7045); box-shadow: 0 2px 3px #684b2922; }
+    .bucket-band.top { top: 23px; height: 14px; }.bucket-band.bottom { bottom: 2px; left: 13px; right: 13px; height: 9px; }
+    .bucket-label { position: absolute; inset: 44px 0 auto; z-index: 2; text-align: center; color: #f6e2bd; text-shadow: 0 1px 2px #76522f; font-size: 14px; letter-spacing: 5px; padding-left: 5px; writing-mode: vertical-rl; margin: auto; }
+    .bucket-rim { position: absolute; z-index: 4; top: 14px; left: 0; width: 118px; height: 27px; border: 2px solid #936d43; border-radius: 50%; background: linear-gradient(180deg,#f0d9aa 0 22%,#c59a64 24% 65%,#9c7448 68% 100%); box-shadow: inset 0 3px 5px #f8e6c888,0 3px 5px #72563733; }
+    .bucket-rim::after { content: ""; position: absolute; inset: 6px 9px; border-radius: 50%; border: 1px solid #795a38; background: #69513a; box-shadow: inset 0 2px 4px #30261f88; }
+    .sticks { position: absolute; z-index: 3; width: 142px; height: 140px; bottom: 99px; left: 50%; transform: translateX(-50%); transform-origin: 50% 100%; transform-style: preserve-3d; }
+    .stick { width: 13px; height: 115px; position: absolute; bottom: 0; left: 64.5px; border: 1px solid #9e7446; border-radius: 3px 3px 2px 2px; background: linear-gradient(90deg,#aa7946 0,#d9b57d 12%,#f0d7a5 38%,#dfc18d 72%,#b1814c 100%); box-shadow: inset 1px 0 0 #fff0cf99,inset -1px 0 0 #805b3433,1px 3px 4px #725c3c33; transform-origin: 50% 100%; }
+    .stick:nth-child(1) { height: 90px; transform: rotate(-31deg) translateY(24px); }.stick:nth-child(2) { height: 104px; transform: rotate(-23deg) translateY(14px); }.stick:nth-child(3) { height: 120px; transform: rotate(-15deg) translateY(7px); }.stick:nth-child(4) { height: 110px; transform: rotate(-7deg) translateY(3px); }.stick:nth-child(5) { height: 127px; transform: rotate(1deg); }.stick:nth-child(6) { height: 116px; transform: rotate(9deg) translateY(3px); }.stick:nth-child(7) { height: 123px; transform: rotate(17deg) translateY(8px); }.stick:nth-child(8) { height: 105px; transform: rotate(25deg) translateY(16px); }.stick:nth-child(9) { height: 93px; transform: rotate(33deg) translateY(22px); }
+    .stick::after { content: ""; position: absolute; width: 3px; height: 42px; border-radius: 2px; left: 4px; top: 15px; background: linear-gradient(#fff3d5aa,#fff3d500); }
+    .stick:nth-child(1)::before,.stick:nth-child(3)::before,.stick:nth-child(5)::before,.stick:nth-child(7)::before,.stick:nth-child(9)::before { content: "吉"; position: absolute; left: 2px; right: 2px; top: 63%; color: #9d7046; text-shadow: 0 1px #f4dfb9; text-align: center; font-size: 7px; line-height: 1; }
+    .selected-stick { width: 19px; height: 143px; position: absolute; z-index: 1; left: calc(50% - 9.5px); bottom: 91px; border: 1px solid #8d663e; border-radius: 4px 4px 2px 2px; background: linear-gradient(90deg,#a77843,#f0d6a0 24%,#f7e2b7 48%,#d0a56a 84%,#956a3e); box-shadow: inset 1px 0 #fff0cbaa,inset -1px 0 #805b3466,0 7px 13px #71563855; opacity: 0; transform: translateY(42px) rotate(2deg) rotateX(0); transform-origin: 50% 100%; }
+    .selected-stick::before { content: "卦象"; position: absolute; top: 15px; left: 0; right: 0; color: #8d633d; text-align: center; writing-mode: vertical-rl; font-size: 8px; letter-spacing: 1px; }
+    .selected-stick::after { content: ""; position: absolute; inset: 5px 3px; border: 1px solid #fff0d477; border-radius: 2px; }
+    .draw-stage.shaking .bucket { animation: bucket-rock .43s cubic-bezier(.45,.05,.55,.95) infinite alternate; }
+    .draw-stage.shaking .sticks { animation: bundle-rattle .31s cubic-bezier(.45,.05,.55,.95) infinite alternate; }
+    .draw-stage.shaking .stick:nth-child(odd) { animation: stick-rattle .25s ease-in-out infinite alternate; }
+    .draw-stage.shaking .stick:nth-child(even) { animation: stick-rattle .29s ease-in-out infinite alternate-reverse; }
+    .draw-stage.drawn .selected-stick { opacity: 1; transform: translateY(-56px) rotate(2deg) rotateX(-8deg); transition: opacity .25s ease,transform .55s cubic-bezier(.18,.85,.3,1.25); }
+    .draw-help { color: #9aa296; font-size: 9px; margin: 9px 0 0; min-height: 14px; }
+
+    .result { display: none; margin: 0 0 65px; }
+    .result.show { display: block; animation: rise-in .8s ease both; }
+    .result-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; padding: 0 2px 13px; border-bottom: 1px solid #dcded2; }
+    .result-title { color: var(--gold); font-size: 9px; letter-spacing: 2px; }
+    .result-head h2 { margin-top: 7px; font-size: 22px; }
+    .result-question { max-width: 360px; color: #899388; font-size: 10px; line-height: 1.8; text-align: right; }
+    .result-grid { display: grid; grid-template-columns: .74fr 1.26fr; gap: 15px; margin-top: 15px; }
+    .hex-card { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 260px; padding: 23px; text-align: center; background: #eaf0e6; border-radius: 13px; border: 1px solid #dfe7db; }
+    .hex-symbol { display: grid; gap: 7px; width: 62px; margin: 0 auto 15px; }
+    .yao { height: 6px; position: relative; display: flex; justify-content: space-between; }
+    .yao::before,.yao::after { content: ""; height: 6px; border-radius: 4px; background: #547463; }
+    .yao.yang::before { width: 100%; }.yao.yang::after { display: none; }.yao.yin::before,.yao.yin::after { width: 43%; }
+    .yao.moving::before,.yao.moving::after { background: #bb9254; }
+    .hex-name { color: #315648; font-size: 25px; letter-spacing: 4px; }
+    .hex-number { margin-top: 7px; color: #869589; font-size: 9px; letter-spacing: 1px; }
+    .hex-subtitle { margin-top: 14px; color: #859285; font-size: 10px; }
+    .interpretation { padding: 23px 25px; }
+    .interpretation-label { color: #a18452; font-size: 9px; letter-spacing: 1.8px; }
+    .interpretation h3 { font-size: 15px; font-weight: 500; margin: 10px 0 9px; color: #3d5d4d; }
+    .interpretation p { color: #718076; font-size: 11px; line-height: 2; margin: 0; }
+    .reading-advice { border-top: 1px solid #eeede5; margin-top: 14px; padding-top: 13px; color: #899388; font-size: 10px; line-height: 1.8; }
+    .reading-advice strong { color: #718673; font-weight: 500; }
+    .change-card { margin-top: 14px; padding: 17px 21px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .change-copy { display: flex; align-items: center; gap: 15px; }
+    .change-glyph { min-width: 37px; height: 37px; display: grid; place-items: center; border-radius: 50%; color: #9c7d4d; background: #f4efdf; font-size: 14px; }
+    .change-copy strong { display: block; color: #5f7165; font-size: 11px; font-weight: 500; }
+    .change-copy small { display: block; color: #99a095; margin-top: 5px; font-size: 9px; line-height: 1.7; }
+    .change-hex { color: #6c806f; font-size: 13px; white-space: nowrap; }
+    .change-hex small { display: block; text-align: right; color: #9ca396; font-size: 8px; margin-top: 4px; }
+    .result-footer { text-align: center; margin-top: 15px; color: #a0a69b; font-size: 9px; line-height: 1.8; }
+    .again-button { border: 0; background: transparent; color: #688774; padding: 8px; text-decoration: underline; text-underline-offset: 4px; font-size: 10px; }
+
+    .rules { margin: 0 0 26px; padding: 20px 22px; display: grid; grid-template-columns: 150px 1fr; gap: 20px; align-items: start; background: #eeeee4a8; border: 1px solid #e6e5d9; border-radius: 12px; }
+    .rules h2 { color: #687c6a; font-size: 12px; margin: 2px 0 0; }
+    .rules-content { color: #889186; font-size: 9px; line-height: 1.95; }
+    .formula { display: inline-block; padding: 4px 8px; margin: 0 0 6px; border-radius: 5px; background: #f9f8f1; color: #66806b; font-size: 9px; }
+    footer { min-height: 68px; border-top: 1px solid #dcded2; display: flex; justify-content: space-between; align-items: center; gap: 15px; color: #9aa296; font-size: 9px; }
+    footer span:last-child { color: #a89a7e; letter-spacing: 1px; }
+
+    @keyframes sun-breathe { 0%,100% { transform: scale(1); opacity: .68; } 50% { transform: scale(1.045); opacity: .85; } }
+    @keyframes cloud-drift { from { transform: translateX(-4px); } to { transform: translateX(28px); } }
+    @keyframes lotus-sway { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(3deg); } }
+    @keyframes bird-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    @keyframes bucket-rock { from { transform: rotateX(-9deg) translateZ(4px) translateY(-1px); } to { transform: rotateX(9deg) translateZ(-3px) translateY(2px); } }
+    @keyframes bundle-rattle { from { transform: translateX(-50%) rotateX(-13deg) translateY(-2px); } to { transform: translateX(-50%) rotateX(13deg) translateY(3px); } }
+    @keyframes stick-rattle { from { translate: 0 -2px; } to { translate: 0 3px; } }
+    @keyframes rise-in { from { opacity: 0; transform: translateY(13px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 760px) {
+      body { min-width: 320px; }
+      .shell { width: min(calc(100% - 32px),560px); }
+      header { height: 66px; padding-top: env(safe-area-inset-top); }
+      .brand { gap: 8px; }.brand-mark { width: 32px; height: 32px; font-size: 16px; }.brand-name { font-size: 13px; letter-spacing: 2px; }.brand-sub { font-size: 7px; letter-spacing: .7px; }
+      .header-right { gap: 6px; font-size: 8px; white-space: nowrap; }.live-dot { margin-right: 4px; }
+      .hero { grid-template-columns: 1fr; padding: 32px 0 16px; gap: 0; }
+      .eyebrow { font-size: 9px; letter-spacing: 2px; }
+      h1 { margin: 15px 0 11px; font-size: clamp(33px,9vw,43px); letter-spacing: 2px; }.hero-copy { font-size: 12px; line-height: 1.9; }
+      .hero-meta { margin-top: 16px; gap: 9px; font-size: 8px; letter-spacing: 0; }.hero-meta span + span { padding-left: 9px; }
+      .scene { height: 190px; margin-top: 1px; transform: scale(.9); transform-origin: center top; margin-bottom: -14px; }
+      .reading-panel { padding: 19px 16px; border-radius: 13px; }.panel-heading { gap: 7px; }.panel-heading h2 { font-size: 16px; letter-spacing: 1px; }.section-kicker { font-size: 8px; letter-spacing: 1.5px; }.today-chip { font-size: 8px; padding: 6px 8px; }
+      .date-line { gap: 8px 12px; margin: 16px 0; padding: 11px 0; font-size: 9px; }.question-label { font-size: 10px; }.question-label small { font-size: 8px; }
+      .question-input { min-height: 48px; padding: 11px 12px; font-size: 16px; }
+      .start-row { align-items: stretch; flex-direction: column; gap: 12px; margin-top: 13px; }.start-hint { font-size: 9px; }.primary-button { min-height: 48px; width: 100%; font-size: 12px; }
+      .method-row { grid-template-columns: 1fr; gap: 7px; margin: 13px 0 38px; }
+      .method-card { padding: 11px 13px; }.method-card h3 { display: inline-block; margin: 0 0 0 8px; }.method-card p { padding: 5px 0 0 27px; font-size: 9px; }
+      .interaction { padding: 20px 14px; border-radius: 13px; }.interaction .panel-heading h2 { font-size: 15px; }.draw-stage { height: 205px; }.bucket { transform: scale(.92); transform-origin: 50% 85%; }.draw-help { font-size: 9px; }
+      .result { margin-bottom: 38px; }.result-head { display: block; }.result-head h2 { font-size: 19px; }.result-question { text-align: left; margin-top: 8px; font-size: 10px; }
+      .result-grid { grid-template-columns: 1fr; gap: 10px; }.hex-card { min-height: 225px; }.interpretation { padding: 19px 17px; }.interpretation p { font-size: 12px; }
+      .change-card { padding: 14px; align-items: flex-start; gap: 8px; }.change-copy { gap: 10px; }.change-copy small { max-width: 195px; font-size: 9px; }.change-hex { font-size: 11px; }
+      .rules { grid-template-columns: 1fr; gap: 9px; padding: 15px; margin-bottom: 18px; }.rules h2 { font-size: 11px; }.rules-content { font-size: 9px; }.formula { line-height: 1.8; }
+      footer { align-items: flex-start; flex-direction: column; justify-content: center; padding: 13px 0 calc(13px + env(safe-area-inset-bottom)); }
+    }
+    @media (max-width: 370px) {
+      .shell { width: calc(100% - 24px); }
+      .header-right > span:first-child { letter-spacing: -.3px; }
+      .hero-meta { flex-wrap: wrap; }
+      .question-label { align-items: flex-start; flex-direction: column; gap: 4px; }
+      .change-card { flex-direction: column; }
+      .change-hex { align-self: flex-end; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *,*::before,*::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="shell">
+      <header>
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">梅</div>
+          <div><div class="brand-name">梅间一卦</div><div class="brand-sub">MEIHUA · A MOMENT OF STILLNESS</div></div>
+        </div>
+        <div class="header-right"><span><i class="live-dot"></i>本地历法 · 即时起卦</span><span>☼ <span id="clock">--:--</span></span></div>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div>
+            <div class="eyebrow">一念起 · 万象生</div>
+            <h1>在此刻，<br><span>听见内心的回响</span></h1>
+            <p class="hero-copy">借一段安静的时间，写下心中的疑问。以当下农历时序起卦，再亲手抽出一支签，让古老的象数成为一次温柔的自我对话。</p>
+            <div class="hero-meta"><span>依当下农历年月日时</span><span>一问一卦 · 静心而看</span></div>
+          </div>
+          <div class="scene" aria-hidden="true">
+            <div class="scene-sun"></div><div class="scene-cloud"></div><div class="scene-cloud two"></div>
+            <div class="mountain"></div><div class="mountain small"></div>
+            <div class="hill back"></div><div class="hill front"></div><div class="hill low"></div><div class="pond"></div>
+            <div class="lotus">
+              <svg viewBox="0 0 70 86" fill="none">
+                <path d="M34 78c0-20 1-34 2-48M35 64c-10-13-19-14-25-13 3 11 11 18 24 19M36 70c9-14 18-17 25-17-3 12-11 19-25 22" stroke="#668b76" stroke-width="2" stroke-linecap="round"/>
+                <path d="M35 38c-15-7-20-20-9-25 6-2 10 8 10 15 1-13 7-22 13-17 6 6-1 20-12 27 12-8 24-8 24-1 0 8-15 10-26 4 8 6 10 14 3 16-8 1-12-9-11-19-2 12-9 19-14 13-5-7 5-17 22-21Z" fill="#e6b9a8" stroke="#c89581" stroke-width="1.2" stroke-linejoin="round"/>
+                <circle cx="36" cy="41" r="4" fill="#d9b06b"/>
+              </svg>
+            </div>
+            <div class="scene-bird">⌒</div><div class="scene-label">山 · 水 · 花</div>
+          </div>
+        </section>
+
+        <section class="panel reading-panel" aria-labelledby="reading-title">
+          <div class="panel-heading">
+            <div><div class="section-kicker">BEGIN WITH A QUESTION</div><h2 id="reading-title">让此刻，成为起点</h2></div>
+            <div class="today-chip"><i class="live-dot"></i>时序已就绪</div>
+          </div>
+          <div class="date-line" id="date-line" aria-live="polite"></div>
+          <label class="question-label" for="question"><span>此刻，你最想问什么？</span><small>不必完美，真实就好</small></label>
+          <input class="question-input" id="question" maxlength="80" autocomplete="off" placeholder="例如：接下来，我可以把注意力放在哪里？">
+          <div class="start-row">
+            <div class="start-hint">给自己一点安静 · 深呼吸<br>起卦结果仅作文化体验与自我思考参考</div>
+            <button class="primary-button" id="start-button" type="button">静心起卦 <span aria-hidden="true">　→</span></button>
+          </div>
+        </section>
+
+        <section class="method-row" aria-label="体验步骤">
+          <article class="method-card"><span class="method-num">01</span><h3>写下此刻所问</h3><p>把心里挂念的事，轻轻放在纸上。</p></article>
+          <article class="method-card"><span class="method-num">02</span><h3>依历法与问题起卦</h3><p>结合农历年月日时与所问内容生成卦象。</p></article>
+          <article class="method-card"><span class="method-num">03</span><h3>观看签筒摇动</h3><p>点击静心起卦，签筒约三秒摇动后显示解读。</p></article>
+        </section>
+
+        <section class="panel interaction" id="interaction" aria-labelledby="draw-title">
+          <div class="panel-heading">
+            <div><div class="section-kicker">A GENTLE MOMENT</div><h2 id="draw-title">正在为你摇签</h2></div>
+            <div class="today-chip">你的这一问</div>
+          </div>
+          <div class="draw-stage" id="draw-stage" aria-hidden="true">
+            <div class="sticks">
+              <span class="stick"></span><span class="stick"></span><span class="stick"></span>
+              <span class="stick"></span><span class="stick"></span><span class="stick"></span>
+              <span class="stick"></span><span class="stick"></span><span class="stick"></span>
+            </div>
+            <div class="selected-stick"></div>
+            <div class="bucket">
+              <div class="bucket-body"><span class="bucket-label">灵签</span></div>
+              <div class="bucket-band top"></div><div class="bucket-band bottom"></div>
+              <div class="bucket-rim"></div>
+            </div>
+          </div>
+          <p class="draw-help" id="draw-help">签筒轻摇中，请稍候片刻…</p>
+        </section>
+
+        <section class="result" id="result" aria-live="polite"></section>
+
+        <section class="rules">
+          <h2>本页起卦说明</h2>
+          <div class="rules-content">
+            <span class="formula">历法年月日时数 + 问题文字哈希值生成卦数；动爻由总数除以六取余</span><br>
+            时辰按传统十二时辰，每两小时一段；23:00 至 00:59 计为子时。为避免不同问题在同一时辰重复同一卦，本页将问题文字纳入卦数，并在本次页面时辰内为不同问题分配不同卦；同一问题再次起卦会沿用已分配的卦象。这个问题区分规则是本页面的交互设计，不属于所有梅花易数流派的统一古法。抽签动画只负责揭示卦象，不另行随机改卦。<br>
+            解读是传统文化的启发式表达，不是事实预测，也不能替代专业意见、现实判断或重要决定。
+          </div>
+        </section>
+      </main>
+
+      <footer><span>梅间一卦 · 为心留一处安静</span><span>传统文化体验 · 不作确定性预测</span></footer>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const BRANCHES = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+      const MONTHS = ["正月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "冬月", "腊月"];
+      const TRIGRAMS = [
+        { name: "乾", nature: "天", lines: [1, 1, 1], quality: "开阔、主动与创造" },
+        { name: "兑", nature: "泽", lines: [1, 1, 0], quality: "交流、喜悦与分享" },
+        { name: "离", nature: "火", lines: [1, 0, 1], quality: "明晰、观察与连接" },
+        { name: "震", nature: "雷", lines: [1, 0, 0], quality: "行动、萌发与改变" },
+        { name: "巽", nature: "风", lines: [0, 1, 1], quality: "沟通、渗透与渐进" },
+        { name: "坎", nature: "水", lines: [0, 1, 0], quality: "谨慎、穿越与沉静" },
+        { name: "艮", nature: "山", lines: [0, 0, 1], quality: "停歇、边界与专注" },
+        { name: "坤", nature: "地", lines: [0, 0, 0], quality: "承接、包容与滋养" }
+      ];
+
+      const HEXAGRAMS = [
+        ["乾", "乾", "保持开放与担当。先看清方向，再以稳定行动回应机会。"],
+        ["坤", "坤", "宜先倾听、承接与整理。温和而有韧性，也是一种力量。"],
+        ["屯", "水雷", "新事初生时常有纷乱。先理顺次序，借助可靠支持，再逐步展开。"],
+        ["蒙", "山水", "还在摸索阶段时，不妨先承认未知。向可信的人学习，让问题逐渐清楚。"],
+        ["需", "水天", "有些事情需要等待条件成熟。照顾好当下，不必因着急而透支自己。"],
+        ["讼", "天水", "分歧需要被看见，也需要被妥善表达。先厘清事实和边界，再寻求沟通。"],
+        ["师", "地水", "面对复杂局面，先建立秩序并确认共同目标。谨慎选择可以信任的协作者。"],
+        ["比", "水地", "连接与互助是当下的主题。靠近价值观相合的人，也记得保有自己的判断。"],
+        ["小畜", "风天", "眼下适合积累而不是勉强求快。做好细节，小小进展也会汇成力量。"],
+        ["履", "天泽", "向前之前留意分寸与礼节。尊重边界，谨慎迈步，路会走得更稳。"],
+        ["泰", "地天", "内外沟通有望变得顺畅。珍惜协作的窗口，也为顺利之时保留余地。"],
+        ["否", "天地", "暂时不畅并不等于没有出路。先减少无效消耗，守住重要的事，等待变化。"],
+        ["同人", "天火", "真诚交流能带来新的理解。寻找共同点，同时允许彼此保有不同。"],
+        ["大有", "火天", "手中已有值得珍惜的资源。看见自己的所得，也把力量用在真正重要处。"],
+        ["谦", "地山", "保持谦和，踏实完成眼前一步。无需过分张扬，长期努力自会被看见。"],
+        ["豫", "雷地", "热情与准备同样重要。让期待落在可执行的计划上，行动才会更从容。"],
+        ["随", "泽雷", "先观察变化，再决定如何顺势而行。随和不等于失去方向，心里要有准绳。"],
+        ["蛊", "山风", "旧问题值得温和地整理。找出形成原因，从一个可以修复的细节开始。"],
+        ["临", "地泽", "这是靠近、照料与倾听的时刻。以耐心回应眼前的人与事，保持清醒边界。"],
+        ["观", "风地", "先站远一点观察全貌。留心重复出现的信号，理解情境后再做判断。"],
+        ["噬嗑", "火雷", "遇到阻碍时，把问题具体化并逐项处理。清晰规则比反复猜测更有帮助。"],
+        ["贲", "山火", "外在呈现可以带来温度，但不必只追求漂亮。让形式服务于真实的内容。"],
+        ["剥", "山地", "适合做减法、修复根基。暂缓不必要的扩张，把精力留给真正稳固的部分。"],
+        ["复", "地雷", "转机可能从一个很小的念头开始。允许自己重新出发，循序渐进地恢复节奏。"],
+        ["无妄", "天雷", "回到朴素和真实，不为控制未知而过度筹划。按事实行动，也照顾内心感受。"],
+        ["大畜", "山天", "积蓄能力、知识与耐心。暂时的克制并非停滞，而是在为长远选择做准备。"],
+        ["颐", "山雷", "留意自己正在摄取什么、表达什么。滋养身心，也用有益的语言对待自己。"],
+        ["大过", "泽风", "承担已经偏重时，要及时调整支点。求助和减负不是退缩，而是保持长久的办法。"],
+        ["坎", "坎为水", "遇到不确定时，把注意力放在眼前可确认的一步。稳住节奏，寻求适当支持。"],
+        ["离", "离为火", "看清真正重要的事，并持续照料它。明辨信息，也给自己留出休息的空间。"],
+        ["咸", "泽山", "感受与回应需要相互尊重。保持真诚，也留意关系中的舒适与边界。"],
+        ["恒", "雷风", "稳定来自持续而非勉强。选一个可长期坚持的小行动，让日常替你积累答案。"],
+        ["遁", "天山", "暂时退一步有助于保存力量。离开消耗性的拉扯，重新确认自己的优先次序。"],
+        ["大壮", "雷天", "有力量时更要留心分寸。把热情用在建设上，避免冲动替代沟通。"],
+        ["晋", "火地", "适度展现成果、接受正向反馈。稳步向前时，也别忘了感谢支持你的人。"],
+        ["明夷", "地火", "光亮暂时不显时，先照顾好自己。谨慎选择分享对象，保存内在的信念。"],
+        ["家人", "风火", "从身边的日常关系开始整理。温柔表达期待，清楚约定各自的责任与空间。"],
+        ["睽", "火泽", "不同意见并不必然意味着对立。先确认共同关心之处，再寻找可并行的小路。"],
+        ["蹇", "水山", "前路吃力时，不妨停下重新评估。向有经验的人求助，比独自硬闯更明智。"],
+        ["解", "雷水", "紧绷之处有机会慢慢松开。优先处理最具体的结，再给自己一些恢复的时间。"],
+        ["损", "山泽", "减少一点消耗，换取更多清明。取舍之前想清楚什么是核心，什么可以暂缓。"],
+        ["益", "风雷", "微小而持续的投入可能带来增长。分享善意，也让资源流向真正有需要的地方。"],
+        ["夬", "泽天", "重要的话题需要清楚表达，但不必用强硬证明自己。明确立场，也为倾听留门。"],
+        ["姤", "天风", "新的相遇或念头值得观察，不必立即承诺。先了解边界与实际情况，再决定如何回应。"],
+        ["萃", "泽地", "聚集共识、汇拢资源能让事情更有方向。让参与者清楚目标，也听见各自的需要。"],
+        ["升", "地风", "成长来自一步步向上。接受节奏不快的事实，扎实练习，时间会成为助力。"],
+        ["困", "泽水", "感到受限时，先分清能改变与不能改变的部分。适度休息，找一个可信的人说说。"],
+        ["井", "水风", "回到长期可靠的基础。照料日常资源与习惯，稳定的支持常在身边。"],
+        ["革", "泽火", "改变需要理由、准备与时机。先确认旧方式为何不再适用，再温和而坚定地调整。"],
+        ["鼎", "火风", "把已有经验转化为新的养分。整合资源、耐心培育，让想法逐渐成为可持续的成果。"],
+        ["震", "震为雷", "突如其来的变化会让人一惊。先安顿情绪、确认安全，再处理眼前要紧的事。"],
+        ["艮", "艮为山", "停下来也是一种选择。减少外界干扰，确认自己的边界与节奏，再决定下一步。"],
+        ["渐", "风山", "关系与成长都需要时间。循序建立信任，不用把尚未成熟的事催得太紧。"],
+        ["归妹", "雷泽", "面对变化多的安排，先看清双方的期待与责任。暂缓仓促决定，给彼此更多了解。"],
+        ["丰", "雷火", "事情热闹或进展很快时，更要看清重点。把握当下的光亮，也预留整理与休息。"],
+        ["旅", "火山", "身处过渡阶段时，保持轻装与礼貌。安顿好基本需要，在变化里保有自己的中心。"],
+        ["巽", "巽为风", "柔和、持续的沟通比一次用力更有效。选择合适方式，让善意慢慢抵达。"],
+        ["兑", "兑为泽", "愉悦与表达能拉近彼此。享受轻松，也留意承诺是否清楚、言语是否真诚。"],
+        ["涣", "风水", "散开的注意力需要重新汇聚。通过清晰沟通与可执行的小目标，逐步找回连结。"],
+        ["节", "水泽", "为时间、精力设定合适边界。适度节制让生活更有余裕，但不必因此苛责自己。"],
+        ["中孚", "风泽", "真诚是关系中安定的力量。先对自己诚实，再以可信、持续的行动回应他人。"],
+        ["小过", "雷山", "眼下适合把小事做细，不必急着追求大跨越。谨慎一点，给自己留出回旋空间。"],
+        ["既济", "水火", "事情有了阶段性成果后，更需耐心收尾。检查细节并维持好习惯，避免松懈。"],
+        ["未济", "火水", "还未完成并不代表失败。重新排好次序，一步一验，让未成之事保持生机。"]
+      ];
+
+      const HEX_BY_PAIR = new Map();
+      const HEX_BY_NUMBER = new Map();
+      HEXAGRAMS.forEach(([name, symbol, reading], index) => {
+        const hex = { number: index + 1, name, symbol, reading };
+        HEX_BY_NUMBER.set(index + 1, hex);
+      });
+
+      const KING_WEN = [
+        [1, 43, 14, 34, 9, 5, 26, 11],
+        [10, 58, 38, 54, 61, 60, 41, 19],
+        [13, 49, 30, 55, 37, 63, 22, 36],
+        [25, 17, 21, 51, 42, 3, 27, 24],
+        [44, 28, 50, 32, 57, 48, 18, 46],
+        [6, 47, 64, 40, 59, 29, 4, 7],
+        [33, 31, 56, 62, 53, 39, 52, 15],
+        [12, 45, 35, 16, 20, 8, 23, 2]
+      ];
+      const TRIGRAMS_BOTTOM_UP = [
+        [1, 1, 1], [1, 1, 0], [1, 0, 1], [1, 0, 0],
+        [0, 1, 1], [0, 1, 0], [0, 0, 1], [0, 0, 0]
+      ];
+      const VALUE_TO_TRIGRAM = new Map(TRIGRAMS_BOTTOM_UP.map((lines, index) => [lines.join(""), index]));
+      const QUESTION_ALLOCATIONS = new Map();
+
+      for (let upper = 0; upper < 8; upper += 1) {
+        for (let lower = 0; lower < 8; lower += 1) {
+          const number = KING_WEN[lower][upper];
+          const details = HEX_BY_NUMBER.get(number);
+          HEX_BY_PAIR.set(`${upper}-${lower}`, details);
+        }
+      }
+
+      const $ = (selector) => document.querySelector(selector);
+
+      function getChineseCalendar(date) {
+        const formatter = new Intl.DateTimeFormat("zh-CN-u-ca-chinese", {
+          year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Shanghai"
+        });
+        const parts = Object.fromEntries(formatter.formatToParts(date).map(part => [part.type, part.value]));
+        const yearName = parts.yearName || "";
+        const yearBranch = yearName.slice(-1);
+        const yearNumber = BRANCHES.indexOf(yearBranch) + 1 || ((((Number(parts.relatedYear) - 4) % 12) + 12) % 12) + 1;
+        const monthLabel = String(parts.month || "").replace(/^闰/, "").replace(/月$/, "");
+        const chineseMonths = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二"];
+        const monthNumber = chineseMonths.indexOf(monthLabel.replace(/月$/, "")) + 1;
+        const dayNumber = Number(parts.day);
+        if (!yearNumber || !monthNumber || !dayNumber) {
+          throw new Error("此浏览器未能识别农历日期，请使用较新的 Chrome、Edge 或 Safari。");
+        }
+        const hour = Number(new Intl.DateTimeFormat("en-US", {
+          hour: "numeric", hourCycle: "h23", timeZone: "Asia/Shanghai"
+        }).format(date));
+        const hourBranchIndex = Math.floor(((hour + 1) % 24) / 2);
+        return {
+          yearNumber,
+          yearBranch: yearBranch || BRANCHES[yearNumber - 1],
+          yearName: yearName || `${Number(parts.relatedYear)}年`,
+          year: Number(parts.relatedYear),
+          monthNumber,
+          monthLabel,
+          dayNumber,
+          hour,
+          hourBranch: BRANCHES[hourBranchIndex],
+          hourNumber: hourBranchIndex + 1
+        };
+      }
+
+      function dateText(calendar, date) {
+        const clock = new Intl.DateTimeFormat("zh-CN", {
+          hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "Asia/Shanghai"
+        }).format(date);
+        const dateLabel = new Intl.DateTimeFormat("zh-CN", {
+          year: "numeric", month: "long", day: "numeric", weekday: "long", timeZone: "Asia/Shanghai"
+        }).format(date);
+        $("#date-line").innerHTML = `<span><strong>公历</strong> ${dateLabel}</span><span><strong>农历</strong> ${calendar.yearName}年${calendar.monthLabel}月${calendar.dayNumber}日</span><span><strong>时辰</strong> ${calendar.hourBranch}时</span>`;
+        $("#clock").textContent = clock;
+      }
+
+      function modulo(value, divisor) {
+        const result = value % divisor;
+        return result === 0 ? divisor : result;
+      }
+
+      function questionHash(question) {
+        let hash = 2166136261;
+        for (const character of question) {
+          hash ^= character.codePointAt(0);
+          hash = Math.imul(hash, 16777619) >>> 0;
+        }
+        return hash >>> 0;
+      }
+
+      function allocateQuestionHexagram(preferredNumber, calendar, question) {
+        const scope = `${calendar.year}-${calendar.monthNumber}-${calendar.dayNumber}-${calendar.hourNumber}`;
+        if (!QUESTION_ALLOCATIONS.has(scope)) {
+          QUESTION_ALLOCATIONS.set(scope, { byQuestion: new Map(), used: new Set() });
+        }
+        const allocations = QUESTION_ALLOCATIONS.get(scope);
+        if (allocations.byQuestion.has(question)) return allocations.byQuestion.get(question);
+        if (allocations.used.size >= 64) {
+          throw new Error("本时辰已为 64 个不同问题起卦，请稍后再试。");
+        }
+        for (let offset = 0; offset < 64; offset += 1) {
+          const candidate = ((preferredNumber - 1 + offset) % 64) + 1;
+          if (!allocations.used.has(candidate)) {
+            allocations.used.add(candidate);
+            allocations.byQuestion.set(question, candidate);
+            return candidate;
+          }
+        }
+        throw new Error("暂时无法为这个问题分配卦象，请稍后再试。");
+      }
+
+      function pairForHexagram(number) {
+        for (let lower = 0; lower < 8; lower += 1) {
+          for (let upper = 0; upper < 8; upper += 1) {
+            if (KING_WEN[lower][upper] === number) return { upper, lower };
+          }
+        }
+        throw new Error("卦象编号无效，请重新起卦。");
+      }
+
+      function buildHexagram(date, questionText) {
+        const calendar = getChineseCalendar(date);
+        const question = questionText.normalize("NFKC").trim().replace(/\s+/g, " ").toLocaleLowerCase("zh-CN");
+        const hash = questionHash(question);
+        const calendarSum = calendar.yearNumber + calendar.monthNumber + calendar.dayNumber;
+        const upperSum = calendarSum + (hash & 0xffff);
+        const lowerSum = calendarSum + calendar.hourNumber + (hash >>> 16);
+        const upperIndex = modulo(upperSum, 8) - 1;
+        const lowerIndex = modulo(lowerSum, 8) - 1;
+        const preferredNumber = KING_WEN[lowerIndex][upperIndex];
+        const hexagramNumber = allocateQuestionHexagram(preferredNumber, calendar, question);
+        const pair = pairForHexagram(hexagramNumber);
+        const movingLine = modulo(lowerSum + hash, 6) - 1;
+        const primary = HEX_BY_PAIR.get(`${pair.upper}-${pair.lower}`);
+        const lines = [...TRIGRAMS_BOTTOM_UP[pair.lower], ...TRIGRAMS_BOTTOM_UP[pair.upper]];
+        lines[movingLine] = lines[movingLine] ? 0 : 1;
+        const changedLower = VALUE_TO_TRIGRAM.get(lines.slice(0, 3).join(""));
+        const changedUpper = VALUE_TO_TRIGRAM.get(lines.slice(3, 6).join(""));
+        const changed = HEX_BY_PAIR.get(`${changedUpper}-${changedLower}`);
+        return {
+          calendar, primary, changed, movingLine,
+          upper: TRIGRAMS[pair.upper], lower: TRIGRAMS[pair.lower],
+          upperSum, lowerSum, lines
+        };
+      }
+
+      function renderLines(lines, movingLine) {
+        return `<div class="hex-symbol" aria-label="卦象爻画">${lines.slice().reverse().map((line, index) => {
+          const actualIndex = 5 - index;
+          return `<span class="yao ${line ? "yang" : "yin"} ${actualIndex === movingLine ? "moving" : ""}"></span>`;
+        }).join("")}</div>`;
+      }
+
+      function showResult(result, question) {
+        const resultElement = $("#result");
+        const lineName = ["初", "二", "三", "四", "五", "上"][result.movingLine] + "爻";
+        resultElement.innerHTML = `
+          <div class="result-head">
+            <div><div class="result-title">YOUR MOMENT · 此刻卦象</div><h2>这一签，送给此刻的你</h2></div>
+            <div class="result-question">所问：${escapeHtml(question || "愿心中所想，皆有安放之处")}</div>
+          </div>
+          <div class="result-grid">
+            <div class="hex-card">
+              ${renderLines(result.lines, result.movingLine)}
+              <div class="hex-name">${escapeHtml(result.primary.name)}卦</div>
+              <div class="hex-number">第 ${result.primary.number} 卦 · ${escapeHtml(result.primary.symbol)}</div>
+              <div class="hex-subtitle">上${escapeHtml(result.upper.name)}${escapeHtml(result.upper.nature)}　下${escapeHtml(result.lower.name)}${escapeHtml(result.lower.nature)}</div>
+            </div>
+            <div class="panel interpretation">
+              <div class="interpretation-label">A GENTLE INTERPRETATION</div>
+              <h3>${escapeHtml(result.primary.name)}卦 · ${escapeHtml(result.upper.quality)}之象</h3>
+              <p>${escapeHtml(result.primary.reading)}</p>
+              <div class="reading-advice"><strong>给此刻的一点提醒</strong><br>这不是替你做决定的答案，而是一面用来整理思绪的小镜子。回到你真实的处境，看看哪一句让你停留，再选择一个温和、可行的下一步。</div>
+            </div>
+          </div>
+          <div class="panel change-card">
+            <div class="change-copy"><span class="change-glyph">✧</span><div><strong>${lineName} · 变化的提示</strong><small>${escapeHtml(result.primary.name)}卦转为${escapeHtml(result.changed.name)}卦。动爻提示事情可能出现变化的地方；不必急着判断好坏，先留意自己可以调整的部分。</small></div></div>
+            <div class="change-hex">${escapeHtml(result.changed.name)}卦<small>第 ${result.changed.number} 卦</small></div>
+          </div>
+          <div class="result-footer">卦象提供的是思考角度，不是对未来的保证。你仍然拥有选择与行动的主动权。<br><button class="again-button" id="again-button" type="button">再问一事 · 重新开始</button></div>`;
+        resultElement.classList.add("show");
+        $("#start-button").disabled = false;
+        resultElement.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+        $("#again-button").addEventListener("click", () => {
+          resultElement.classList.remove("show");
+          resultElement.innerHTML = "";
+          $("#interaction").classList.remove("show");
+          $("#draw-stage").classList.remove("shaking", "drawn");
+          $("#draw-help").textContent = "签筒轻摇中，请稍候片刻…";
+          $("#start-button").disabled = false;
+          $("#start-button").scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, character => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+        })[character]);
+      }
+
+      let pendingReading = null;
+      let clockTimer = null;
+      let drawTimer = null;
+      let revealTimer = null;
+
+      function updateDate() {
+        const date = new Date();
+        try {
+          dateText(getChineseCalendar(date), date);
+        } catch (error) {
+          $("#date-line").textContent = error.message;
+          $("#start-button").disabled = true;
+        }
+      }
+
+      $("#start-button").addEventListener("click", () => {
+        const question = $("#question").value.trim();
+        if (!question) {
+          $("#question").focus();
+          $("#question").setCustomValidity("写下一句此刻真正想问的话吧。");
+          $("#question").reportValidity();
+          $("#question").addEventListener("input", () => $("#question").setCustomValidity(""), { once: true });
+          return;
+        }
+        try {
+          pendingReading = { ...buildHexagram(new Date(), question), question };
+          window.clearTimeout(drawTimer);
+          window.clearTimeout(revealTimer);
+          $("#interaction").classList.add("show");
+          $("#result").classList.remove("show");
+          $("#result").innerHTML = "";
+          $("#draw-stage").classList.remove("drawn");
+          $("#draw-stage").classList.add("shaking");
+          $("#draw-help").textContent = "签筒轻摇中，请将心念留在此刻…";
+          $("#start-button").disabled = true;
+          $("#interaction").scrollIntoView({ behavior: "smooth", block: "center" });
+          drawTimer = window.setTimeout(() => {
+            $("#draw-stage").classList.remove("shaking");
+            $("#draw-stage").classList.add("drawn");
+            $("#draw-help").textContent = "签已抽出，正在为你展开卦象…";
+            revealTimer = window.setTimeout(() => showResult(pendingReading, pendingReading.question), 450);
+          }, 3000);
+        } catch (error) {
+          $("#start-button").disabled = false;
+          window.alert(error.message);
+        }
+      });
+
+      updateDate();
+      clockTimer = window.setInterval(updateDate, 30_000);
+      window.addEventListener("pagehide", () => window.clearInterval(clockTimer), { once: true });
+    })();
+  </script>
+</body>
+</html>
